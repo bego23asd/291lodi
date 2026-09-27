@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Automation System</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #090d16;
+      color: #e2e8f0;
+      padding: 12px;
+    }
+
+    .app-card {
+      width: 100%;
+      max-width: 500px;
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+    }
+
+    .app-header {
+      background: #161f30;
+      border-bottom: 1px solid #1f2937;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: #f8fafc;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #10b981;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: rgba(16, 185, 129, 0.1);
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: #10b981;
+    }
+
+    .app-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .section-card {
+      background: #0d131f;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-field.full-width {
+      margin-bottom: 14px;
+    }
+
+    .form-field label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-field input[type="text"] {
+      width: 100%;
+      background: #111827;
+      border: 1px solid #283548;
+      border-radius: 6px;
+      color: #f8fafc;
+      font-family: "Courier New", Consolas, monospace;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 12px;
+      transition: border-color 0.2s;
+    }
+
+    .form-field input[type="text"]:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    .form-field input[readonly] {
+      background: #090d16;
+      color: #cbd5e1;
+      border-color: #1e293b;
+    }
+
+    .captcha-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .captcha-preview {
+      height: 42px;
+      width: 120px;
+      background: #ffffff;
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #283548;
+      flex-shrink: 0;
+    }
+
+    #captchaImage {
+      height: 100%;
+      width: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    #captchaCodeInput {
+      flex: 1;
+      text-align: center;
+      letter-spacing: 2px;
+      height: 42px;
+    }
+
+    .action-btn {
+      width: 100%;
+      padding: 12px;
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .action-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    .panel-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #94a3b8;
+      letter-spacing: 0.6px;
+    }
+
+    .secondary-btn {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #cbd5e1;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+    }
+
+    .secondary-btn:hover {
+      background: #334155;
+      color: #ffffff;
+    }
+
+    .terminal-view {
+      height: 145px;
+      overflow-y: auto;
+      font-family: "Courier New", Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      background: #090d16;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 10px;
+    }
+
+    .log-entry,
+    .log-message {
+      padding: 3px 6px;
+      border-radius: 4px;
+      margin-bottom: 4px;
+      word-break: break-all;
+    }
+
+    .log-entry .timestamp {
+      color: #64748b;
+      margin-right: 4px;
+    }
+
+    .log-info {
+      color: #94a3b8;
+    }
+
+    .log-success {
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .log-error {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .table-container {
+      max-height: 150px;
+      overflow-y: auto;
+      background: #090d16;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: "Courier New", Consolas, monospace;
+      font-size: 11px;
+      text-align: left;
+    }
+
+    .data-table th {
+      position: sticky;
+      top: 0;
+      background: #161f30;
+      color: #94a3b8;
+      font-weight: 700;
+      padding: 8px;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    .data-table td {
+      padding: 8px;
+      border-bottom: 1px solid #141c2c;
+      color: #e2e8f0;
+    }
+
+    .badge,
+    .status-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 3px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #64748b;
+      padding: 18px 0 !important;
+    }
+
+    @media (max-width: 480px) {
+      .field-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-card">
+    <header class="app-header">
+      <div class="header-title">ACCOUNT AUTOMATION SYSTEM</div>
+      <div class="status-indicator">
+        <span class="pulse-dot"></span>
+        ONLINE
+      </div>
+    </header>
+
+    <main class="app-body">
+      <section class="section-card">
+        <div class="field-row">
+          <div class="form-field">
+            <label for="username">Generated Username</label>
+            <input type="text" id="username" readonly placeholder="Generating...">
+          </div>
+          <div class="form-field">
+            <label for="mobile">Mobile Reference</label>
+            <input type="text" id="mobile" readonly placeholder="Generating...">
+          </div>
+        </div>
+
+        <div class="form-field full-width">
+          <label for="captchaCodeInput">Security Captcha</label>
+          <div class="captcha-group">
+            <div class="captcha-preview">
+              <img id="captchaImage" src="" alt="Captcha">
+            </div>
+            <input type="text" id="captchaCodeInput" placeholder="ENTER CODE" maxlength="8" autocomplete="off">
+          </div>
+        </div>
+
+        <button id="registerBtn" class="action-btn">
+          SUBMIT REGISTRATION
+        </button>
+      </section>
+
+      <section class="section-card">
+        <div class="panel-header">
+          <span class="panel-label">SYSTEM CONSOLE</span>
+          <button id="clearConsole" class="secondary-btn">CLEAR</button>
+        </div>
+        <div id="outputConsole" class="terminal-view"></div>
+      </section>
+
+      <section class="section-card">
+        <div class="panel-header">
+          <span class="panel-label">EXECUTION LOGS (<span id="historyCount">0</span>)</span>
+          <button id="clearHistoryBtn" class="secondary-btn">PURGE LOGS</button>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>USERNAME</th>
+                <th>IP ADDRESS</th>
+                <th>TIME</th>
+                <th>STATUS</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <tr>
+                <td colspan="5" class="empty-state">No execution entries found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
